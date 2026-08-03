@@ -42,17 +42,13 @@
           "data": {
             "persona_id": "Persona (Agent)",
             "system_prompt": "System Prompt Override",
-            "llm_hass_api": "HA Tool Providers",
             "show_tool_progress": "Show tool progress in thinking",
-            "local_first": "Try local agent first (for home control)",
             "extra_tool_ids": "Additional Onyx tool IDs"
           },
           "data_description": {
             "persona_id": "The Onyx persona (agent) to use for conversations",
             "system_prompt": "Extra instructions injected into every Onyx turn. Leave empty to use the persona's own system prompt only. Supports HA templates.",
-            "llm_hass_api": "HA LLM APIs to expose (for local-first home control)",
             "show_tool_progress": "Surface Onyx tool activity (search, python, etc.) as progress notes in the thinking section",
-            "local_first": "Route home-control intents to HA's default agent first; fall through to Onyx only on NO_INTENT_MATCH",
             "extra_tool_ids": "Onyx tool IDs to add beyond the persona's defaults. Leave empty to keep the persona's configured tools as-is."
           }
         },
@@ -61,17 +57,13 @@
           "data": {
             "persona_id": "Persona (Agent)",
             "system_prompt": "System Prompt Override",
-            "llm_hass_api": "HA Tool Providers",
             "show_tool_progress": "Show tool progress in thinking",
-            "local_first": "Try local agent first (for home control)",
             "extra_tool_ids": "Additional Onyx tool IDs"
           },
           "data_description": {
             "persona_id": "The Onyx persona (agent) to use for conversations",
             "system_prompt": "Extra instructions injected into every Onyx turn. Leave empty to use the persona's own system prompt only. Supports HA templates.",
-            "llm_hass_api": "HA LLM APIs to expose (for local-first home control)",
             "show_tool_progress": "Surface Onyx tool activity as progress notes in the thinking section",
-            "local_first": "Route home-control intents to HA's default agent first; fall through to Onyx only on NO_INTENT_MATCH",
             "extra_tool_ids": "Onyx tool IDs to add beyond the persona's defaults"
           }
         }

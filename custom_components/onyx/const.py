@@ -15,12 +15,10 @@ CONF_API_TOKEN = "api_token"
 CONF_PERSONA_ID = "persona_id"
 CONF_SYSTEM_PROMPT = "system_prompt"
 CONF_SHOW_TOOL_PROGRESS = "show_tool_progress"
-CONF_LOCAL_FIRST = "local_first"
 CONF_EXTRA_TOOL_IDS = "extra_tool_ids"
 
 # ── Defaults ──
 DEFAULT_SHOW_TOOL_PROGRESS = True
-DEFAULT_LOCAL_FIRST = True
 
 # ── Session store ──
 STORAGE_KEY = f"{DOMAIN}.sessions"

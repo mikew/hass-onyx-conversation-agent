@@ -5,19 +5,17 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 from homeassistant.components import conversation
-from homeassistant.const import CONF_LLM_HASS_API, MATCH_ALL
+from homeassistant.const import MATCH_ALL
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers import device_registry as dr, intent
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_EXTRA_TOOL_IDS,
-    CONF_LOCAL_FIRST,
     CONF_PERSONA_ID,
     CONF_SHOW_TOOL_PROGRESS,
     CONF_SYSTEM_PROMPT,
-    DEFAULT_LOCAL_FIRST,
     DEFAULT_SHOW_TOOL_PROGRESS,
     DOMAIN,
     LOGGER,
@@ -138,11 +136,10 @@ class OnyxConversationEntity(conversation.ConversationEntity):
             entry_type=dr.DeviceEntryType.SERVICE,
         )
 
-        # If HA LLM APIs are configured, advertise CONTROL feature.
-        if subentry.data.get(CONF_LLM_HASS_API):
-            self._attr_supported_features = (
-                conversation.ConversationEntityFeature.CONTROL
-            )
+        # Onyx controls the home via its own tools (e.g. HA MCP), so advertise CONTROL.
+        self._attr_supported_features = (
+            conversation.ConversationEntityFeature.CONTROL
+        )
 
     @property
     def supported_languages(self) -> list[str] | Literal["*"]:
@@ -218,63 +215,19 @@ class OnyxConversationEntity(conversation.ConversationEntity):
         user_input: conversation.ConversationInput,
         chat_log: conversation.ChatLog,
     ) -> conversation.ConversationResult:
-        """Process user input through Onyx (with optional local-first fallback)."""
-        options = self._subentry.data
-
-        # Provide LLM data (system prompt, tools) to the chat log.
-        llm_apis = options.get(CONF_LLM_HASS_API) or None
+        """Process user input through Onyx."""
+        # Provide LLM data (system prompt) to the chat log.
         try:
             await chat_log.async_provide_llm_data(
                 user_input.as_llm_context(DOMAIN),
-                llm_apis,
+                None,  # no HA LLM API — Onyx uses its own tools
                 None,  # user_llm_prompt — we inject via additional_context instead
                 user_input.extra_system_prompt,
             )
         except conversation.ConverseError as err:
             return err.as_conversation_result()
 
-        # -- Local-first: try HA's built-in intent recognition for control --
-        local_first = options.get(CONF_LOCAL_FIRST, DEFAULT_LOCAL_FIRST)
-        if local_first:
-            result = await self._try_local_intent(user_input)
-            if result is not None:
-                return result
-
-        # -- Onyx path --
         return await self._handle_onyx(user_input, chat_log)
-
-    async def _try_local_intent(
-        self,
-        user_input: conversation.ConversationInput,
-    ) -> conversation.ConversationResult | None:
-        """Try HA's built-in default agent for intent matching.
-
-        Returns ``None`` on NO_INTENT_MATCH so the caller falls through to Onyx.
-        Uses the public ``conversation.async_converse`` API with the default
-        agent, which is the supported way to invoke intent processing.
-        """
-        try:
-            # Use the public API to invoke HA's default conversation agent.
-            result = await conversation.async_converse(
-                hass=self.hass,
-                text=user_input.text,
-                conversation_id=None,  # Ephemeral — don't pollute user's chat log
-                context=user_input.context,
-                language=user_input.language,
-                agent_id=conversation.HOME_ASSISTANT_AGENT,
-            )
-        except Exception:
-            LOGGER.debug("Local agent failed, falling through to Onyx", exc_info=True)
-            return None
-
-        if (
-            result.response.error_code
-            == intent.IntentResponseErrorCode.NO_INTENT_MATCH
-        ):
-            LOGGER.debug("Local agent returned NO_INTENT_MATCH, routing to Onyx")
-            return None
-
-        return result
 
     async def _handle_onyx(
         self,

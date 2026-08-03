@@ -12,9 +12,7 @@ from homeassistant.config_entries import (
     ConfigSubentryFlow,
     SubentryFlowResult,
 )
-from homeassistant.const import CONF_LLM_HASS_API
 from homeassistant.core import callback
-from homeassistant.helpers import llm
 from homeassistant.helpers.httpx_client import get_async_client
 from homeassistant.helpers.selector import (
     SelectOptionDict,
@@ -30,12 +28,10 @@ from homeassistant.helpers.selector import (
 from .const import (
     CONF_API_TOKEN,
     CONF_EXTRA_TOOL_IDS,
-    CONF_LOCAL_FIRST,
     CONF_PERSONA_ID,
     CONF_SERVER_URL,
     CONF_SHOW_TOOL_PROGRESS,
     CONF_SYSTEM_PROMPT,
-    DEFAULT_LOCAL_FIRST,
     DEFAULT_SHOW_TOOL_PROGRESS,
     DOMAIN,
     LOGGER,
@@ -220,12 +216,6 @@ class OnyxConversationSubentryFlow(ConfigSubentryFlow):
             LOGGER.warning("Failed to fetch Onyx tools: %s", exc)
             return []
 
-    def _get_llm_apis(self) -> list[SelectOptionDict]:
-        return [
-            SelectOptionDict(label=api.name, value=api.id)
-            for api in llm.async_get_apis(self.hass)
-        ]
-
     async def _build_schema(
         self,
         personas: list[SelectOptionDict] | None = None,
@@ -236,8 +226,6 @@ class OnyxConversationSubentryFlow(ConfigSubentryFlow):
         if tools is None:
             tools = await self._fetch_tools()
 
-        llm_apis = self._get_llm_apis()
-
         schema: dict[vol.Marker, Any] = {
             vol.Required(CONF_PERSONA_ID): SelectSelector(
                 SelectSelectorConfig(
@@ -246,19 +234,9 @@ class OnyxConversationSubentryFlow(ConfigSubentryFlow):
                 ),
             ),
             vol.Optional(CONF_SYSTEM_PROMPT, default=""): TemplateSelector(),
-            vol.Optional(
-                CONF_LLM_HASS_API,
-                default=[llm.LLM_API_ASSIST],
-            ): SelectSelector(
-                SelectSelectorConfig(options=llm_apis, multiple=True),
-            ),
             vol.Required(
                 CONF_SHOW_TOOL_PROGRESS,
                 default=DEFAULT_SHOW_TOOL_PROGRESS,
-            ): bool,
-            vol.Required(
-                CONF_LOCAL_FIRST,
-                default=DEFAULT_LOCAL_FIRST,
             ): bool,
         }
 
@@ -285,9 +263,6 @@ class OnyxConversationSubentryFlow(ConfigSubentryFlow):
                 user_input[CONF_EXTRA_TOOL_IDS] = [
                     int(x) for x in user_input[CONF_EXTRA_TOOL_IDS]
                 ]
-            # Filter out LLM APIs that no longer exist.
-            if not user_input.get(CONF_LLM_HASS_API):
-                user_input.pop(CONF_LLM_HASS_API, None)
 
             # Resolve persona name for the entry title.
             personas = await self._fetch_personas()
@@ -318,8 +293,6 @@ class OnyxConversationSubentryFlow(ConfigSubentryFlow):
                 user_input[CONF_EXTRA_TOOL_IDS] = [
                     int(x) for x in user_input[CONF_EXTRA_TOOL_IDS]
                 ]
-            if not user_input.get(CONF_LLM_HASS_API):
-                user_input.pop(CONF_LLM_HASS_API, None)
 
             return self.async_update_and_abort(
                 self._get_entry(),
@@ -335,12 +308,6 @@ class OnyxConversationSubentryFlow(ConfigSubentryFlow):
             existing[CONF_EXTRA_TOOL_IDS] = [
                 str(x) for x in existing[CONF_EXTRA_TOOL_IDS]
             ]
-
-        # Filter out stale LLM APIs.
-        llm_apis = [api.id for api in llm.async_get_apis(self.hass)]
-        existing[CONF_LLM_HASS_API] = [
-            api for api in existing.get(CONF_LLM_HASS_API, []) if api in llm_apis
-        ]
 
         schema = self.add_suggested_values_to_schema(
             await self._build_schema(), existing
