@@ -1,0 +1,110 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Onyx",
+        "data": {
+          "server_url": "Server URL",
+          "api_token": "API Token (PAT)"
+        },
+        "data_description": {
+          "server_url": "The base URL of your Onyx instance (e.g. https://onyx.example.com)",
+          "api_token": "A Personal Access Token from your Onyx account"
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure Onyx Server",
+        "data": {
+          "server_url": "Server URL",
+          "api_token": "API Token (PAT)"
+        },
+        "data_description": {
+          "server_url": "The base URL of your Onyx instance",
+          "api_token": "A Personal Access Token from your Onyx account"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to the Onyx server",
+      "invalid_auth": "Invalid API token",
+      "unknown": "An unknown error occurred"
+    },
+    "abort": {
+      "already_configured": "This Onyx server is already configured",
+      "reconfigure_successful": "Onyx server has been reconfigured"
+    }
+  },
+  "config_subentries": {
+    "conversation": {
+      "step": {
+        "user": {
+          "title": "Add Onyx Conversation Agent",
+          "data": {
+            "persona_id": "Persona (Agent)",
+            "system_prompt": "System Prompt Override",
+            "llm_hass_api": "HA Tool Providers",
+            "show_tool_progress": "Show tool progress in thinking",
+            "local_first": "Try local agent first (for home control)",
+            "extra_tool_ids": "Additional Onyx tool IDs"
+          },
+          "data_description": {
+            "persona_id": "The Onyx persona (agent) to use for conversations",
+            "system_prompt": "Extra instructions injected into every Onyx turn. Leave empty to use the persona's own system prompt only. Supports HA templates.",
+            "llm_hass_api": "HA LLM APIs to expose (for local-first home control)",
+            "show_tool_progress": "Surface Onyx tool activity (search, python, etc.) as progress notes in the thinking section",
+            "local_first": "Route home-control intents to HA's default agent first; fall through to Onyx only on NO_INTENT_MATCH",
+            "extra_tool_ids": "Onyx tool IDs to add beyond the persona's defaults. Leave empty to keep the persona's configured tools as-is."
+          }
+        },
+        "reconfigure": {
+          "title": "Reconfigure Onyx Conversation Agent",
+          "data": {
+            "persona_id": "Persona (Agent)",
+            "system_prompt": "System Prompt Override",
+            "llm_hass_api": "HA Tool Providers",
+            "show_tool_progress": "Show tool progress in thinking",
+            "local_first": "Try local agent first (for home control)",
+            "extra_tool_ids": "Additional Onyx tool IDs"
+          },
+          "data_description": {
+            "persona_id": "The Onyx persona (agent) to use for conversations",
+            "system_prompt": "Extra instructions injected into every Onyx turn. Leave empty to use the persona's own system prompt only. Supports HA templates.",
+            "llm_hass_api": "HA LLM APIs to expose (for local-first home control)",
+            "show_tool_progress": "Surface Onyx tool activity as progress notes in the thinking section",
+            "local_first": "Route home-control intents to HA's default agent first; fall through to Onyx only on NO_INTENT_MATCH",
+            "extra_tool_ids": "Onyx tool IDs to add beyond the persona's defaults"
+          }
+        }
+      },
+      "initiate_flow": {
+        "user": "Add conversation agent"
+      },
+      "entry_type": "Conversation agent",
+      "abort": {
+        "reconfigure_successful": "Conversation agent has been reconfigured"
+      }
+    }
+  },
+  "services": {
+    "new_session": {
+      "name": "New Onyx Session",
+      "description": "Force a new Onyx chat session for the given conversation agent.",
+      "fields": {
+        "conversation_id": {
+          "name": "Conversation ID",
+          "description": "The HA conversation ID to reset."
+        }
+      }
+    },
+    "delete_session": {
+      "name": "Delete Onyx Session",
+      "description": "Delete the Onyx chat session mapped to the given conversation ID.",
+      "fields": {
+        "conversation_id": {
+          "name": "Conversation ID",
+          "description": "The HA conversation ID whose Onyx session should be deleted."
+        }
+      }
+    }
+  }
+}

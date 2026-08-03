@@ -1,0 +1,37 @@
+new_session:
+  name: New Onyx Session
+  description: >
+    Force a new Onyx chat session for the given conversation agent.
+    The previous Onyx session (if any) is deleted on the server.
+  target:
+    entity:
+      integration: onyx
+      domain: conversation
+  fields:
+    conversation_id:
+      name: Conversation ID
+      description: >
+        The HA conversation ID to reset. If omitted, a new standalone session
+        is created and returned.
+      required: false
+      example: "01J5X..."
+      selector:
+        text:
+
+delete_session:
+  name: Delete Onyx Session
+  description: >
+    Delete the Onyx chat session mapped to the given conversation ID.
+  target:
+    entity:
+      integration: onyx
+      domain: conversation
+  fields:
+    conversation_id:
+      name: Conversation ID
+      description: >
+        The HA conversation ID whose Onyx session should be deleted.
+      required: true
+      example: "01J5X..."
+      selector:
+        text:
