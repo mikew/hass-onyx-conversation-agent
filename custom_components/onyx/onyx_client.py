@@ -188,12 +188,14 @@ class OnyxClient:
             for t in items
         ]
 
-    async def async_create_chat_session(self, persona_id: int) -> str:
+    async def async_create_chat_session(
+        self, persona_id: int, description: str | None = None
+    ) -> str:
         """Create a new chat session, return the session UUID string."""
-        data = await self._post(
-            "/chat/create-chat-session",
-            {"persona_id": persona_id},
-        )
+        payload: dict[str, object] = {"persona_id": persona_id}
+        if description:
+            payload["description"] = description
+        data = await self._post("/chat/create-chat-session", payload)
         return str(data["chat_session_id"])
 
     async def async_delete_chat_session(self, session_id: str) -> None:

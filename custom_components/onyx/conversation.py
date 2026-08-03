@@ -9,6 +9,7 @@ from homeassistant.const import CONF_LLM_HASS_API, MATCH_ALL
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr, intent
 from homeassistant.helpers.storage import Store
+from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_EXTRA_TOOL_IDS,
@@ -153,6 +154,10 @@ class OnyxConversationEntity(conversation.ConversationEntity):
     def _client(self) -> OnyxClient:
         return self._entry.runtime_data  # type: ignore[return-value]
 
+    def _session_description(self) -> str:
+        """Return the Onyx session name for newly created sessions."""
+        return f"Home Assistant: {dt_util.now().strftime('%Y-%m-%d %H:%M')}"
+
     async def _get_or_create_onyx_session(
         self, conversation_id: str
     ) -> str:
@@ -163,7 +168,9 @@ class OnyxConversationEntity(conversation.ConversationEntity):
             return onyx_id
 
         persona_id: int = self._subentry.data[CONF_PERSONA_ID]
-        onyx_id = await self._client.async_create_chat_session(persona_id)
+        onyx_id = await self._client.async_create_chat_session(
+            persona_id, self._session_description()
+        )
         store.put(conversation_id, onyx_id)
         await store.async_save()
         LOGGER.debug(
@@ -186,7 +193,9 @@ class OnyxConversationEntity(conversation.ConversationEntity):
             except OnyxError:
                 LOGGER.warning("Failed to delete old Onyx session %s", old)
         persona_id: int = self._subentry.data[CONF_PERSONA_ID]
-        new_id = await self._client.async_create_chat_session(persona_id)
+        new_id = await self._client.async_create_chat_session(
+            persona_id, self._session_description()
+        )
         store.put(conversation_id, new_id)
         await store.async_save()
         return new_id
