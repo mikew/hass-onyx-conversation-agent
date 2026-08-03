@@ -1,6 +1,6 @@
 {
   "domain": "onyx",
-  "name": "Onyx",
+  "name": "Onyx Conversation Agent",
   "after_dependencies": [
     "assist_pipeline",
     "intent"

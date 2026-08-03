@@ -98,7 +98,7 @@ class OnyxConfigFlow(ConfigFlow, domain=DOMAIN):
                 self._async_abort_entries_match({CONF_SERVER_URL: url})
 
                 return self.async_create_entry(
-                    title=f"Onyx ({url})",
+                    title=f"Onyx Conversation Agent ({url})",
                     data={
                         CONF_SERVER_URL: url,
                         CONF_API_TOKEN: token,
@@ -151,7 +151,7 @@ class OnyxConfigFlow(ConfigFlow, domain=DOMAIN):
             else:
                 return self.async_update_reload_and_abort(
                     entry=self._get_reconfigure_entry(),
-                    title=f"Onyx ({url})",
+                    title=f"Onyx Conversation Agent ({url})",
                     data={
                         CONF_SERVER_URL: url,
                         CONF_API_TOKEN: token,
