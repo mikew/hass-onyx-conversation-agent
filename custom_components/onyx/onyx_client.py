@@ -347,7 +347,7 @@ async def transform_onyx_stream(
             continue
 
         # -- control / terminal packets ------------------------------------
-        if ptype in ("stop", "section_end"):
+        if ptype == "stop":
             # Ensure we opened a role so HA doesn't get an empty result.
             if not role_opened:
                 role_opened = True
@@ -361,6 +361,7 @@ async def transform_onyx_stream(
 
         # -- ignored ---------------------------------------------------------
         if ptype in (
+            "section_end",
             "chat_heartbeat",
             "top_level_branching",
             "citation_info",
