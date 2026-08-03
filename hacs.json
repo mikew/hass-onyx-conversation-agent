@@ -1,0 +1,6 @@
+{
+  "name": "Onyx",
+  "homeassistant": "2025.8",
+  "hacs": "2.0.5",
+  "render_readme": true
+}
