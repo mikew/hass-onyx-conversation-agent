@@ -26,6 +26,7 @@ from homeassistant.helpers.selector import (
 )
 
 from .const import (
+    BUILTIN_PERSONAS,
     CONF_API_TOKEN,
     CONF_EXTRA_TOOL_IDS,
     CONF_PERSONA_ID,
@@ -192,21 +193,44 @@ class OnyxConversationSubentryFlow(ConfigSubentryFlow):
     """Handle conversation subentry creation / reconfiguration."""
 
     async def _fetch_personas(self) -> list[SelectOptionDict]:
-        """Fetch persona list from the Onyx server."""
+        """Fetch persona list from the Onyx server.
+
+        Built-in personas (Search Agent, General Agent, etc.) are always
+        shown at the top of the list with a "(built-in)" suffix, followed
+        by any custom agents from the server.
+        """
         entry = self._get_entry()
         client: OnyxClient = entry.runtime_data  # type: ignore[assignment]
         try:
             personas = await client.async_list_personas()
-            return [
-                SelectOptionDict(
-                    value=str(p.id),
-                    label=p.name,
-                )
-                for p in personas
-            ]
         except OnyxError as exc:
             LOGGER.warning("Failed to fetch Onyx personas: %s", exc)
-            return []
+            personas = []
+
+        builtin_ids = {bid for bid, _ in BUILTIN_PERSONAS}
+        api_by_id = {p.id: p for p in personas}
+
+        # Built-in agents first – prefer the API name if the server
+        # returned one, otherwise fall back to the hardcoded default.
+        builtin_options = [
+            SelectOptionDict(
+                value=str(bid),
+                label=f"{api_by_id[bid].name if bid in api_by_id else name} (built-in)",
+            )
+            for bid, name in BUILTIN_PERSONAS
+        ]
+
+        # Custom (non-built-in) agents after, sorted alphabetically.
+        custom_options = sorted(
+            (
+                SelectOptionDict(value=str(p.id), label=p.name)
+                for p in personas
+                if p.id not in builtin_ids
+            ),
+            key=lambda o: o["label"].casefold(),
+        )
+
+        return builtin_options + custom_options
 
     async def _fetch_tools(self) -> list[SelectOptionDict]:
         """Fetch available tools from the Onyx server."""

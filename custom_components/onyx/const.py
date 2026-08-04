@@ -18,6 +18,14 @@ CONF_SYSTEM_PROMPT = "system_prompt"
 CONF_SHOW_TOOL_PROGRESS = "show_tool_progress"
 CONF_EXTRA_TOOL_IDS = "extra_tool_ids"
 
+# ── Built-in personas (always available) ──
+BUILTIN_PERSONAS: list[tuple[int, str]] = [
+    (0, "Search Agent"),
+    (-1, "General Agent"),
+    (-2, "Paraphrase Agent"),
+    (-3, "Art Agent"),
+]
+
 # ── Defaults ──
 DEFAULT_SHOW_TOOL_PROGRESS = True
 
