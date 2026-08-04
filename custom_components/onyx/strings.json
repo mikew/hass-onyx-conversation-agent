@@ -4,10 +4,12 @@
       "user": {
         "title": "Connect to Onyx",
         "data": {
+          "server_name": "Server Name",
           "server_url": "Server URL",
           "api_token": "API Token (PAT)"
         },
         "data_description": {
+          "server_name": "A friendly name for this Onyx server",
           "server_url": "The base URL of your Onyx instance (e.g. https://onyx.example.com)",
           "api_token": "A Personal Access Token from your Onyx account"
         }
@@ -15,10 +17,12 @@
       "reconfigure": {
         "title": "Reconfigure Onyx Server",
         "data": {
+          "server_name": "Server Name",
           "server_url": "Server URL",
           "api_token": "API Token (PAT)"
         },
         "data_description": {
+          "server_name": "A friendly name for this Onyx server",
           "server_url": "The base URL of your Onyx instance",
           "api_token": "A Personal Access Token from your Onyx account"
         }

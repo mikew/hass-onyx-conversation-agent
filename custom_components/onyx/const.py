@@ -8,6 +8,7 @@ DOMAIN = "onyx"
 LOGGER = logging.getLogger(__package__)
 
 # ── Server-level config keys (config entry data) ──
+CONF_SERVER_NAME = "server_name"
 CONF_SERVER_URL = "server_url"
 CONF_API_TOKEN = "api_token"
 

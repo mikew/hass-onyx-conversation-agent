@@ -29,6 +29,7 @@ from .const import (
     CONF_API_TOKEN,
     CONF_EXTRA_TOOL_IDS,
     CONF_PERSONA_ID,
+    CONF_SERVER_NAME,
     CONF_SERVER_URL,
     CONF_SHOW_TOOL_PROGRESS,
     CONF_SYSTEM_PROMPT,
@@ -94,8 +95,9 @@ class OnyxConfigFlow(ConfigFlow, domain=DOMAIN):
                 self._async_abort_entries_match({CONF_SERVER_URL: url})
 
                 return self.async_create_entry(
-                    title=f"Onyx Conversation Agent ({url})",
+                    title=user_input[CONF_SERVER_NAME],
                     data={
+                        CONF_SERVER_NAME: user_input[CONF_SERVER_NAME],
                         CONF_SERVER_URL: url,
                         CONF_API_TOKEN: token,
                     },
@@ -105,6 +107,9 @@ class OnyxConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=vol.Schema(
                 {
+                    vol.Required(CONF_SERVER_NAME, default="Onyx"): TextSelector(
+                        TextSelectorConfig(type=TextSelectorType.TEXT),
+                    ),
                     vol.Required(CONF_SERVER_URL): TextSelector(
                         TextSelectorConfig(type=TextSelectorType.URL),
                     ),
@@ -147,8 +152,9 @@ class OnyxConfigFlow(ConfigFlow, domain=DOMAIN):
             else:
                 return self.async_update_reload_and_abort(
                     entry=self._get_reconfigure_entry(),
-                    title=f"Onyx Conversation Agent ({url})",
+                    title=user_input[CONF_SERVER_NAME],
                     data={
+                        CONF_SERVER_NAME: user_input[CONF_SERVER_NAME],
                         CONF_SERVER_URL: url,
                         CONF_API_TOKEN: token,
                     },
@@ -160,6 +166,9 @@ class OnyxConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=self.add_suggested_values_to_schema(
                 vol.Schema(
                     {
+                        vol.Required(CONF_SERVER_NAME, default="Onyx"): TextSelector(
+                            TextSelectorConfig(type=TextSelectorType.TEXT),
+                        ),
                         vol.Required(CONF_SERVER_URL): TextSelector(
                             TextSelectorConfig(type=TextSelectorType.URL),
                         ),
