@@ -238,13 +238,16 @@ class OnyxConversationSubentryFlow(ConfigSubentryFlow):
         client: OnyxClient = entry.runtime_data  # type: ignore[assignment]
         try:
             tools = await client.async_list_tools()
-            return [
-                SelectOptionDict(
-                    value=str(t.id),
-                    label=t.display_name or t.name,
-                )
-                for t in tools
-            ]
+            return sorted(
+                (
+                    SelectOptionDict(
+                        value=str(t.id),
+                        label=t.display_name or t.name,
+                    )
+                    for t in tools
+                ),
+                key=lambda o: o["label"].casefold(),
+            )
         except OnyxError as exc:
             LOGGER.warning("Failed to fetch Onyx tools: %s", exc)
             return []
