@@ -24,6 +24,9 @@ from .const import (
 )
 from .onyx_client import OnyxClient, OnyxError, transform_onyx_stream
 
+# Maximum number of prior user/assistant turn *pairs* to include in a recap.
+_MAX_RECAP_TURNS = 10
+
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry, ConfigSubentry
     from homeassistant.core import HomeAssistant
@@ -105,6 +108,48 @@ async def _get_shared_session_store(hass: HomeAssistant) -> _SessionStore:
         domain_data[_SESSION_STORE_KEY] = store
     await store.async_load()
     return store
+
+
+# ---------------------------------------------------------------------------
+# Conversation recap
+# ---------------------------------------------------------------------------
+
+
+def _build_conversation_recap(
+    chat_log: conversation.ChatLog,
+    max_turns: int = _MAX_RECAP_TURNS,
+) -> str | None:
+    """Build a text recap of prior conversation turns from *chat_log*.
+
+    Only ``UserContent`` and ``AssistantContent`` entries are included.
+    The system prompt (index 0) and the current user message (last entry)
+    are excluded – the recap covers the *prior* exchanges only.
+
+    Returns ``None`` when there is nothing meaningful to recap.
+    """
+    # content[0] is always SystemContent; content[-1] is the current
+    # UserContent that triggered this handler.  Everything in between is
+    # prior history.
+    prior = chat_log.content[1:-1] if len(chat_log.content) > 2 else []
+    if not prior:
+        return None
+
+    lines: list[str] = []
+    for entry in prior:
+        if isinstance(entry, conversation.UserContent):
+            lines.append(f"User: {entry.content}")
+        elif isinstance(entry, conversation.AssistantContent) and entry.content:
+            lines.append(f"Assistant: {entry.content}")
+        # ToolResultContent and entries with no text are skipped.
+
+    if not lines:
+        return None
+
+    # Keep only the last `max_turns * 2` lines (each turn has a user + assistant line).
+    if len(lines) > max_turns * 2:
+        lines = lines[-(max_turns * 2) :]
+
+    return "[Prior conversation context]\n" + "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -227,12 +272,31 @@ class OnyxConversationEntity(conversation.ConversationEntity):
         except conversation.ConverseError as err:
             return err.as_conversation_result()
 
-        return await self._handle_onyx(user_input, chat_log)
+        # When a new Onyx session is about to be created and the chat log
+        # already contains prior turns (e.g. handled by HA's built-in intent
+        # handler), build a text recap so Onyx has conversational context.
+        store = await _get_shared_session_store(self.hass)
+        is_new_session = store.get(chat_log.conversation_id) is None
+        conversation_recap: str | None = None
+        if is_new_session:
+            conversation_recap = _build_conversation_recap(chat_log)
+            if conversation_recap:
+                LOGGER.debug(
+                    "Including conversation recap for new Onyx session "
+                    "(conversation %s)",
+                    chat_log.conversation_id,
+                )
+
+        return await self._handle_onyx(
+            user_input, chat_log, conversation_recap=conversation_recap
+        )
 
     async def _handle_onyx(
         self,
         user_input: conversation.ConversationInput,
         chat_log: conversation.ChatLog,
+        *,
+        conversation_recap: str | None = None,
     ) -> conversation.ConversationResult:
         """Stream Onyx response into the chat log."""
         options = self._subentry.data
@@ -241,6 +305,15 @@ class OnyxConversationEntity(conversation.ConversationEntity):
         onyx_session_id = await self._get_or_create_onyx_session(conversation_id)
 
         system_prompt = (options.get(CONF_SYSTEM_PROMPT) or "").strip() or None
+
+        # Combine the configured system prompt with the conversation recap
+        # (if any) into a single additional_context string.
+        context_parts: list[str] = []
+        if system_prompt:
+            context_parts.append(system_prompt)
+        if conversation_recap:
+            context_parts.append(conversation_recap)
+        additional_context = "\n\n".join(context_parts) or None
         show_tool_progress = options.get(
             CONF_SHOW_TOOL_PROGRESS, DEFAULT_SHOW_TOOL_PROGRESS
         )
@@ -268,7 +341,7 @@ class OnyxConversationEntity(conversation.ConversationEntity):
             raw_stream = self._client.async_send_chat_message_stream(
                 chat_session_id=onyx_session_id,
                 message=user_input.text,
-                additional_context=system_prompt,
+                additional_context=additional_context,
                 allowed_tool_ids=allowed_tool_ids,
             )
             delta_stream = transform_onyx_stream(
