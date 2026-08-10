@@ -40,7 +40,6 @@ from .const import (
 )
 from .onyx_client import OnyxAuthError, OnyxClient, OnyxConnectionError, OnyxError
 
-
 # ---------------------------------------------------------------------------
 # Main config flow – server entry
 # ---------------------------------------------------------------------------

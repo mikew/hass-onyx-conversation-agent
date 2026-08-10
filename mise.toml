@@ -1,0 +1,9 @@
+[tools]
+python = "3.13.2"
+uv = "0.12.3"
+
+[settings]
+python.uv_venv_auto = "source"
+
+[env]
+_.python.venv = { path = "./.venv" }
