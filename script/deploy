@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -ex
+
+RELEASE_VERSION="${1}"
+RELEASE_TAG="${2}"
+
+cd custom_components/onyx
+zip -r ../../onyx.zip .
+cd ../..
+
+gh release upload "${RELEASE_TAG}" onyx.zip

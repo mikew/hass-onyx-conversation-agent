@@ -72,9 +72,7 @@ class _SessionStore:
     """Wraps HA's Store for the conversation -> Onyx session map."""
 
     def __init__(self, hass: HomeAssistant) -> None:
-        self._store: Store[dict[str, str]] = Store(
-            hass, STORAGE_VERSION, STORAGE_KEY
-        )
+        self._store: Store[dict[str, str]] = Store(hass, STORAGE_VERSION, STORAGE_KEY)
         self._data: dict[str, str] = {}
         self._loaded = False
 
@@ -182,9 +180,7 @@ class OnyxConversationEntity(conversation.ConversationEntity):
         )
 
         # Onyx controls the home via its own tools (e.g. HA MCP), so advertise CONTROL.
-        self._attr_supported_features = (
-            conversation.ConversationEntityFeature.CONTROL
-        )
+        self._attr_supported_features = conversation.ConversationEntityFeature.CONTROL
 
     @property
     def supported_languages(self) -> list[str] | Literal["*"]:
@@ -200,9 +196,7 @@ class OnyxConversationEntity(conversation.ConversationEntity):
         """Return the Onyx session name for newly created sessions."""
         return f"Home Assistant: {dt_util.now().strftime('%Y-%m-%d %H:%M')}"
 
-    async def _get_or_create_onyx_session(
-        self, conversation_id: str
-    ) -> str:
+    async def _get_or_create_onyx_session(self, conversation_id: str) -> str:
         """Return the Onyx chat_session_id for *conversation_id*, creating if needed."""
         store = await _get_shared_session_store(self.hass)
         onyx_id = store.get(conversation_id)
@@ -327,12 +321,8 @@ class OnyxConversationEntity(conversation.ConversationEntity):
             persona_id: int = options[CONF_PERSONA_ID]
             try:
                 personas = await self._client.async_list_personas()
-                persona = next(
-                    (p for p in personas if p.id == persona_id), None
-                )
-                persona_tool_ids = (
-                    [t.id for t in persona.tools] if persona else []
-                )
+                persona = next((p for p in personas if p.id == persona_id), None)
+                persona_tool_ids = [t.id for t in persona.tools] if persona else []
             except OnyxError:
                 persona_tool_ids = []
             allowed_tool_ids = list(set(persona_tool_ids + extra_ids))
@@ -351,7 +341,7 @@ class OnyxConversationEntity(conversation.ConversationEntity):
             )
             async for _content in chat_log.async_add_delta_content_stream(
                 self.entity_id,
-                delta_stream,
+                delta_stream,  # pyright: ignore[reportArgumentType]
             ):
                 pass  # HA accumulates content internally
         except OnyxError as exc:

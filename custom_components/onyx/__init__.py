@@ -12,11 +12,11 @@ from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
 from homeassistant.helpers import service
 from homeassistant.helpers.httpx_client import get_async_client
 
-from .const import CONF_API_TOKEN, CONF_SERVER_URL, DOMAIN, LOGGER
+from .const import CONF_API_TOKEN, CONF_SERVER_URL, DOMAIN
 from .onyx_client import OnyxAuthError, OnyxClient, OnyxConnectionError, OnyxError
 
 if TYPE_CHECKING:
-    from homeassistant.core import HomeAssistant
+    from homeassistant.core import HomeAssistant, ServiceCall
     from homeassistant.helpers.entity import Entity
     from homeassistant.helpers.typing import ConfigType
 
@@ -50,9 +50,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     return True
 
 
-async def _handle_new_session(
-    entity: Entity, service_call: service.ServiceCall
-) -> None:
+async def _handle_new_session(entity: Entity, service_call: ServiceCall) -> None:
     """Service handler for onyx.new_session."""
     conversation_id = service_call.data.get("conversation_id", "")
     if not conversation_id:
@@ -61,9 +59,7 @@ async def _handle_new_session(
     await entity.async_new_session(conversation_id)  # type: ignore[attr-defined]
 
 
-async def _handle_delete_session(
-    entity: Entity, service_call: service.ServiceCall
-) -> None:
+async def _handle_delete_session(entity: Entity, service_call: ServiceCall) -> None:
     """Service handler for onyx.delete_session."""
     conversation_id = service_call.data["conversation_id"]
     await entity.async_delete_session(conversation_id)  # type: ignore[attr-defined]
@@ -83,9 +79,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: OnyxConfigEntry) -> bool
     except OnyxAuthError as err:
         raise ConfigEntryError("Invalid Onyx API token") from err
     except OnyxConnectionError as err:
-        raise ConfigEntryNotReady(
-            f"Cannot reach Onyx server: {err}"
-        ) from err
+        raise ConfigEntryNotReady(f"Cannot reach Onyx server: {err}") from err
     except OnyxError as err:
         raise ConfigEntryNotReady(str(err)) from err
 

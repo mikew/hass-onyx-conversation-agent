@@ -54,7 +54,7 @@ class OnyxConfigFlow(ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_supported_subentry_types(
         cls,
-        _config_entry: ConfigEntry,
+        config_entry: ConfigEntry,
     ) -> dict[str, type[ConfigSubentryFlow]]:
         return {"conversation": OnyxConversationSubentryFlow}
 
@@ -87,7 +87,7 @@ class OnyxConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = "cannot_connect"
             except OnyxError:
                 errors["base"] = "unknown"
-            except Exception:
+            except Exception:  # noqa: BLE001
                 LOGGER.exception("Unexpected error connecting to Onyx")
                 errors["base"] = "unknown"
             else:
@@ -146,7 +146,7 @@ class OnyxConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = "cannot_connect"
             except OnyxError:
                 errors["base"] = "unknown"
-            except Exception:
+            except Exception:  # noqa: BLE001
                 LOGGER.exception("Unexpected error connecting to Onyx")
                 errors["base"] = "unknown"
             else:

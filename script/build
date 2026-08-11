@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -ex
+
+if [ -z "$CI" ]; then
+  ./script/prepare-env
+fi
+
+function exit-if-ci() {
+  if [ -n "$CI" ]; then
+    exit 1
+  fi
+}
+
+uv run ruff check . || exit-if-ci
+uv run pyright || exit-if-ci

@@ -1,0 +1,59 @@
+name: main
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - "**"
+    tags-ignore:
+      - "**"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+      - run: ./script/prepare-env
+        shell: bash
+      - run: ./script/build
+        shell: bash
+
+  release_please:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    outputs:
+      release_please_version: ${{ steps.release_please.outputs.version }}
+      release_please_tag_name: ${{ steps.release_please.outputs.tag_name }}
+      release_please_release_created: ${{ steps.release_please.outputs.release_created }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: googleapis/release-please-action@v4
+        id: release_please
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  deploy:
+    needs:
+      - release_please
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        if: ${{ needs.release_please.outputs.release_please_release_created == 'true' }}
+      - run: ./script/deploy "${{ needs.release_please.outputs.release_please_version }}" "${{ needs.release_please.outputs.release_please_tag_name }}"
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ needs.release_please.outputs.release_please_release_created == 'true' }}

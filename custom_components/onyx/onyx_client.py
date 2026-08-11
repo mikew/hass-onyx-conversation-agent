@@ -214,7 +214,7 @@ class OnyxClient:
         message: str,
         additional_context: str | None = None,
         allowed_tool_ids: list[int] | None = None,
-    ) -> AsyncGenerator[dict[str, Any], None]:
+    ) -> AsyncGenerator[dict[str, Any]]:
         """Stream an Onyx chat message, yielding raw parsed NDJSON dicts.
 
         Each dict has at minimum a ``"type"`` key (the Onyx packet type).
@@ -255,9 +255,7 @@ class OnyxClient:
                         continue
                     yield obj
         except httpx.HTTPError as exc:
-            raise OnyxConnectionError(
-                f"Stream connection failed: {exc}"
-            ) from exc
+            raise OnyxConnectionError(f"Stream connection failed: {exc}") from exc
 
 
 # ---------------------------------------------------------------------------
@@ -270,7 +268,7 @@ async def transform_onyx_stream(
     *,
     show_tool_progress: bool = True,
     supports_thinking: bool = True,
-) -> AsyncGenerator[dict[str, Any], None]:
+) -> AsyncGenerator[dict[str, Any]]:
     """Transform raw Onyx NDJSON dicts into HA ``AssistantContentDeltaDict``s.
 
     Yields dicts with optional keys ``role``, ``content``, ``thinking_content``.
@@ -415,9 +413,7 @@ def _raise_for_status(resp: httpx.Response) -> None:
             f"Onyx authentication failed ({resp.status_code}): {resp.text[:200]}"
         )
     if resp.status_code >= 400:
-        raise OnyxError(
-            f"Onyx API error {resp.status_code}: {resp.text[:500]}"
-        )
+        raise OnyxError(f"Onyx API error {resp.status_code}: {resp.text[:500]}")
 
 
 async def _raise_for_status_stream(resp: httpx.Response) -> None:
@@ -428,10 +424,8 @@ async def _raise_for_status_stream(resp: httpx.Response) -> None:
     try:
         await resp.aread()
         body = resp.text[:500]
-    except Exception:
+    except Exception:  # noqa: BLE001
         body = "(body unavailable)"
     if resp.status_code in (401, 403):
-        raise OnyxAuthError(
-            f"Onyx authentication failed ({resp.status_code}): {body}"
-        )
+        raise OnyxAuthError(f"Onyx authentication failed ({resp.status_code}): {body}")
     raise OnyxError(f"Onyx API error {resp.status_code}: {body}")
