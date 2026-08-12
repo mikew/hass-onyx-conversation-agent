@@ -2,23 +2,19 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import voluptuous as vol
 from homeassistant.components.conversation import DOMAIN as CONVERSATION_DOMAIN
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
+from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
 from homeassistant.helpers import service
+from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.httpx_client import get_async_client
+from homeassistant.helpers.typing import ConfigType
 
 from .const import CONF_API_TOKEN, CONF_SERVER_URL, DOMAIN
 from .onyx_client import OnyxAuthError, OnyxClient, OnyxConnectionError, OnyxError
-
-if TYPE_CHECKING:
-    from homeassistant.core import HomeAssistant, ServiceCall
-    from homeassistant.helpers.entity import Entity
-    from homeassistant.helpers.typing import ConfigType
 
 PLATFORMS = [Platform.CONVERSATION]
 
