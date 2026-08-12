@@ -1,6 +1,8 @@
 {
   "name": "Onyx Conversation Agent",
-  "homeassistant": "2025.8",
+  "homeassistant": "2025.10",
   "hacs": "2.0.5",
-  "render_readme": true
+  "render_readme": true,
+  "zip_release": true,
+  "filename": "onyx_conversation_agent.zip"
 }
