@@ -13,7 +13,27 @@ Restarts will be required after installation and any updates.
 Once installed, visit Settings > Devices & Services > Add Integration and
 search for "Onyx Conversation Agent".
 
+Enter the information for your Onyx instance and you're ready to create
+Conversation Agents.
+
 ## Configuration
 
-You can add multiple Conversation Agents, backed by any custom Onyx Agents you
-have created (in addition to Onyx's default agents).
+The way Home Assistant structures "conversation agents" is a multi-step process:
+
+- Home Assistant has various "Assistants", one is included by default named "Home Assistant".
+- Assistants are backed by "Conversation Agents", which are the actual implementations of the assistant.
+
+First is to create the Conversation Agent, in `Settings > Devices & Services >
+Onyx Conversation Agent`, tap `Add conversation agent`.
+
+[screenshot]
+
+Here you can set which Onyx Agent to use, along with other options.
+
+[screenshot]
+
+Once that is finished, you now have to visit `Settings > Voice assistants`,
+select an assistant, and in the `Conversation agent` section select your newly
+created Conversation Agent.
+
+[screenshot]
