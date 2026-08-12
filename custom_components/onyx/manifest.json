@@ -1,13 +1,20 @@
 {
   "domain": "onyx",
   "name": "Onyx Conversation Agent",
-  "after_dependencies": ["assist_pipeline", "intent"],
-  "codeowners": ["@mikew"],
+  "after_dependencies": [
+    "assist_pipeline",
+    "intent"
+  ],
+  "codeowners": [
+    "@mikew"
+  ],
   "config_flow": true,
-  "dependencies": ["conversation"],
+  "dependencies": [
+    "conversation"
+  ],
   "documentation": "https://github.com/mikew/hass-onyx-conversation-agent",
   "integration_type": "service",
   "iot_class": "cloud_polling",
   "requirements": [],
-  "version": "1.0.0"
+  "version": "1.0.1"
 }
