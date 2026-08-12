@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 
-DOMAIN = "onyx"
+DOMAIN = "onyx_conversation_agent"
 LOGGER = logging.getLogger(__package__)
 
 # ── Server-level config keys (config entry data) ──

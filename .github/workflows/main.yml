@@ -29,6 +29,7 @@ jobs:
         shell: bash
 
   release_please:
+    if: github.ref == 'refs/heads/main'
     needs:
       - build
     runs-on: ubuntu-latest
@@ -45,6 +46,7 @@ jobs:
           manifest-file: .release-please-manifest.json
 
   deploy:
+    if: github.ref == 'refs/heads/main'
     needs:
       - release_please
       - build
