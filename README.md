@@ -10,8 +10,8 @@ Install using HACS by adding the repository `mikew/hass-onyx-conversation-agent`
 
 Restarts will be required after installation and any updates.
 
-Once installed, visit Settings > Devices & Services > Add Integration and
-search for "Onyx Conversation Agent".
+Once installed, visit `Settings > Devices & Services`, press `Add Integration`,
+and search for `Onyx Conversation Agent`.
 
 <img width="615" height="521" alt="Screenshot 2026-08-12 at 12 16 43 AM" src="https://github.com/user-attachments/assets/a17be8eb-e465-42b1-813d-d2018133b308" />
 
