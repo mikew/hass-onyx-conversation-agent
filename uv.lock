@@ -1102,7 +1102,7 @@ wheels = [
 ]
 
 [[package]]
-name = "hass-onyx-assistant"
+name = "hass-onyx-conversation-agent"
 version = "0.1.0"
 source = { virtual = "." }
 

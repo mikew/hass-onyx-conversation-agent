@@ -1,5 +1,5 @@
 {
-  "domain": "onyx",
+  "domain": "onyx_conversation_agent",
   "name": "Onyx Conversation Agent",
   "after_dependencies": [
     "assist_pipeline",

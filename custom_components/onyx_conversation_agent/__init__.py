@@ -47,7 +47,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 
 async def _handle_new_session(entity: Entity, service_call: ServiceCall) -> None:
-    """Service handler for onyx.new_session."""
+    """Service handler for DOMAIN.new_session."""
     conversation_id = service_call.data.get("conversation_id", "")
     if not conversation_id:
         # If no conversation_id, just create a standalone session.
@@ -56,7 +56,7 @@ async def _handle_new_session(entity: Entity, service_call: ServiceCall) -> None
 
 
 async def _handle_delete_session(entity: Entity, service_call: ServiceCall) -> None:
-    """Service handler for onyx.delete_session."""
+    """Service handler for DOMAIN.delete_session."""
     conversation_id = service_call.data["conversation_id"]
     await entity.async_delete_session(conversation_id)  # type: ignore[attr-defined]
 

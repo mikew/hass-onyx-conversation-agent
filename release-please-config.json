@@ -5,7 +5,7 @@
       "extra-files": [
         {
           "type": "json",
-          "path": "custom_components/onyx/manifest.json",
+          "path": "custom_components/onyx_conversation_agent/manifest.json",
           "jsonpath": "$.version"
         }
       ]

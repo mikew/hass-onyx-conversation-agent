@@ -5,7 +5,7 @@ new_session:
     The previous Onyx session (if any) is deleted on the server.
   target:
     entity:
-      integration: onyx
+      integration: onyx_conversation_agent
       domain: conversation
   fields:
     conversation_id:
@@ -24,7 +24,7 @@ delete_session:
     Delete the Onyx chat session mapped to the given conversation ID.
   target:
     entity:
-      integration: onyx
+      integration: onyx_conversation_agent
       domain: conversation
   fields:
     conversation_id:
